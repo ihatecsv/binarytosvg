@@ -1,8 +1,15 @@
 var fileDom = $('#fileDom')[0];
 var canvas = $('#drawCanvas')[0];
-var ctx = canvas.getContext('2d');
+var txtLink = $('#txtLink')[0];
+var svgLink = $('#svgLink')[0];
+var imgLink = $('#imgLink')[0];
 
-$("#iForm").on('change', function(){
+var dotsPerLine;
+
+var ctx = canvas.getContext('2d');
+ctx.strokeStyle = "rgb(0,0,0)";
+
+$("#iForm").on('input change', function(){
 	var reader = new FileReader();
 	reader.onload = function(e){
 		var resultBuffer = e.target.result;
@@ -20,12 +27,24 @@ $("#iForm").on('change', function(){
 		});
 		drawSvg(fString);
 	}
+	dotsPerLine = parseFloat($("#dotsPerLine").val());
 	var file = fileDom.files[0];
+	
+	if(dotsPerLine < 1 || isNaN(dotsPerLine) || file == null){
+		canvas.width = 0;
+		canvas.height = 0;
+		txtLink.textContent = "";
+		svgLink.textContent = "";
+		imgLink.textContent = "";
+		return false;
+	}
+	
 	var str = reader.readAsArrayBuffer(file);
 });
 
 var drawSvg = function(binaryString){
-	var dotsPerLine = parseFloat($("#dotsPerLine").val());
+	ctx.clearRect(0, 0, canvas.width, canvas.height);
+	
 	var pxWidth = dotsPerLine;
 	var offset = 5;
 	var radius = 0.5;
@@ -37,8 +56,6 @@ var drawSvg = function(binaryString){
 	
 	canvas.width = (pxWidth + (offset*2));
 	canvas.height = (pxHeight + (offset*2));
-	ctx.clearRect(0, 0, canvas.width, canvas.height);
-	ctx.strokeStyle = "rgb(0,0,0)";
 
 	var svgOpen = '<svg xmlns="http://www.w3.org/2000/svg" height="' + (pxHeight + (offset*2)) + '" width="' + (pxWidth + (offset*2)) + '">';
 	var svgClose = '</svg>';
@@ -61,19 +78,16 @@ var drawSvg = function(binaryString){
 	
 	var txtBlob = new Blob([binaryString], {type:"text/plain;charset=utf-8"});
 	var txtPseudoURL = URL.createObjectURL(txtBlob);
-	var txtLink = document.getElementById('txtLink');
 	txtLink.href = txtPseudoURL;
 	txtLink.download = prefix + ".bintext";
 	txtLink.textContent = "Download binary text";
 
 	var svgBlob = new Blob([finalSvg], {type:"image/svg+xml;charset=utf-8"});
 	var svgPseudoURL = URL.createObjectURL(svgBlob);
-	var svgLink = document.getElementById('svgLink');
 	svgLink.href = svgPseudoURL;
 	svgLink.download = prefix + ".svg";
 	svgLink.textContent = "Download SVG";
 	
-	var imgLink = document.getElementById('imgLink');
 	imgLink.href = canvas.toDataURL("image/png");
 	imgLink.download = prefix + ".png";
 	imgLink.textContent = "Download PNG";
