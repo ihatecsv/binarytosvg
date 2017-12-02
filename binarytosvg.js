@@ -1,8 +1,8 @@
-var fileDom = document.getElementById('fileDom');
-var canvas = document.getElementById("drawCanvas");
+var fileDom = $('#fileDom')[0];
+var canvas = $('#drawCanvas')[0];
 var ctx = canvas.getContext('2d');
 
-fileDom.addEventListener('change', function(){
+$("#iForm").on('change', function(){
 	var reader = new FileReader();
 	reader.onload = function(e){
 		var resultBuffer = e.target.result;
@@ -25,8 +25,8 @@ fileDom.addEventListener('change', function(){
 });
 
 var drawSvg = function(binaryString){
-	var pxWidth = 800;
-	var dotsPerLine = 800;
+	var dotsPerLine = parseFloat($("#dotsPerLine").val());
+	var pxWidth = dotsPerLine;
 	var offset = 5;
 	var radius = 0.5;
 	
@@ -73,11 +73,8 @@ var drawSvg = function(binaryString){
 	svgLink.download = prefix + ".svg";
 	svgLink.textContent = "Download SVG";
 	
-	canvas.toBlob(function(imgBlob){
-		var imgPseudoURL = URL.createObjectURL(imgBlob);
-		var imgLink = document.getElementById('imgLink');
-		imgLink.href = imgPseudoURL;
-		imgLink.download = prefix + ".png";
-		imgLink.textContent = "Download PNG";
-	});
+	var imgLink = document.getElementById('imgLink');
+	imgLink.href = canvas.toDataURL("image/png");
+	imgLink.download = prefix + ".png";
+	imgLink.textContent = "Download PNG";
 }
