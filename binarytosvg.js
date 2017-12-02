@@ -1,5 +1,8 @@
 var fileDom = document.getElementById('fileDom');
 
+var canvas = document.getElementById("drawCanvas");
+var ctx = canvas.getContext('2d');
+
 fileDom.addEventListener('change', function(){
 	var reader = new FileReader();
 	reader.onload = function(e){
@@ -24,34 +27,37 @@ fileDom.addEventListener('change', function(){
 
 var drawSvg = function(binaryString){
 	var stringLength = binaryString.length;
-	var pxWidth = 1000;
+	var pxWidth = 500;
 	var dotsPerLine = 500;
 
-	var offset = 10;
+	var offset = 5;
 	var radius = 0.5;
 
 	var dotDelta = pxWidth/dotsPerLine;
 	var yMax = stringLength/dotsPerLine;
 	var pxHeight = yMax*dotDelta;
+	
+	canvas.width = (pxWidth + (offset*2));
+	canvas.height = (pxHeight + (offset*2));
+	ctx.clearRect(0, 0, canvas.width, canvas.height);
+	ctx.strokeStyle = "rgb(0,0,0)";
 
 	var svgOpen = '<svg xmlns="http://www.w3.org/2000/svg" height="' + (pxHeight + (offset*2)) + '" width="' + (pxWidth + (offset*2)) + '">';
 	var svgClose = '</svg>';
 
 	var finalSvg = "";
+	
 
 	for(var y = 0; y < yMax; y++){
 		for(var x = 0; x < dotsPerLine; x++){
 			if(binaryString[x + (y*dotsPerLine)] == 1){
 				finalSvg = finalSvg + '<circle cx="' + ((x*dotDelta) + offset) + '" cy="' + ((y*dotDelta) + offset) + '" r="' + radius + '"/>';
+				ctx.fillRect(((x*dotDelta) + offset), ((y*dotDelta) + offset),1,1);
 			}
 		}
 	}
 
 	finalSvg = svgOpen + finalSvg + svgClose;
-
-	var div = document.createElement('div')
-	document.body.appendChild(div)
-	div.innerHTML = finalSvg;
 	
 	var prefix = Date.now();
 	
@@ -60,14 +66,23 @@ var drawSvg = function(binaryString){
 	var txtLink = document.createElement("a");
 	txtLink.href = txtPseudoURL;
 	txtLink.download = prefix + ".bintext";
-	txtLink.textContent = "Download binary text";
+	txtLink.textContent = "Download binary text ";
 	document.body.appendChild(txtLink);
 
-	var imgBlob = new Blob([finalSvg], {type:"image/svg+xml;charset=utf-8"});
-	var imgPseudoURL = URL.createObjectURL(imgBlob);
-	var imgLink = document.createElement("a");
-	imgLink.href = imgPseudoURL;
-	imgLink.download = prefix + ".svg";
-	imgLink.textContent = "Download SVG";
-	document.body.appendChild(imgLink);
+	var svgBlob = new Blob([finalSvg], {type:"image/svg+xml;charset=utf-8"});
+	var svgPseudoURL = URL.createObjectURL(svgBlob);
+	var svgLink = document.createElement("a");
+	svgLink.href = svgPseudoURL;
+	svgLink.download = prefix + ".svg";
+	svgLink.textContent = "Download SVG ";
+	document.body.appendChild(svgLink);
+	
+	canvas.toBlob(function(imgBlob){
+		var imgPseudoURL = URL.createObjectURL(imgBlob);
+		var imgLink = document.createElement("a");
+		imgLink.href = imgPseudoURL;
+		imgLink.download = prefix + ".png";
+		imgLink.textContent = "Download PNG ";
+		document.body.appendChild(imgLink);
+	});
 }
