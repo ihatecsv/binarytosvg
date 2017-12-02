@@ -2,8 +2,11 @@
 	<head>
 	</head>
 	<body>
-		Select a file to convert:
-		<input type="file" id="fileDom">
+		<form id="iForm">
+			Select a file to convert: <input type="file" id="fileDom"></input>
+			</br>
+			dotsPerLine: <input type="number" id="dotsPerLine" value=400></input>
+		</form>
 		</br>
 		<canvas id="drawCanvas"></canvas>
 		</br>
@@ -12,6 +15,7 @@
 		<a id="svgLink"></a>
 		</br>
 		<a id="imgLink"></a>
+		<script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
 		<script src="binarytosvg.js"></script>
 	</body>
 </html>
